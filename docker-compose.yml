@@ -8,10 +8,7 @@ services:
     volumes:
       # Mount the .modal directory to persist tokens/configuration
       - ~/.modal:/root/.modal
-      # Mount the current directory for development
-      - .:/app
-    environment:
-      # Add any environment variables here
-      - PYTHONUNBUFFERED=1
+      # Uncomment this for hot reloading during development
+      # - .:/app
     # Keep the container running
     restart: unless-stopped 

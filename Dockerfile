@@ -1,13 +1,15 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy requirements first for better layer caching
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install uv for faster Python package installation
+RUN pip install --no-cache-dir uv
 
-# Install the Modal CLI
-RUN pip install --no-cache-dir modal-client
+# Copy project configuration
+COPY pyproject.toml .
+
+# Install dependencies using uv
+RUN uv pip install --no-cache .
 
 # Copy the application code
 COPY . .

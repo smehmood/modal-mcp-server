@@ -1,7 +1,6 @@
 import os
-import json
 import logging
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 
 from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel, Field
