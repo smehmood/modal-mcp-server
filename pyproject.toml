@@ -1,0 +1,12 @@
+[project]
+name = "modal-mcp-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.5.0",
+    "modal>=0.73.116",
+    "pydantic>=2.10.6",
+    "uv>=0.6.9",
+]
