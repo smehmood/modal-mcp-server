@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  modal-mcp-server:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the .modal directory to persist tokens/configuration
+      - ~/.modal:/root/.modal
+      # Mount the current directory for development
+      - .:/app
+    environment:
+      # Add any environment variables here
+      - PYTHONUNBUFFERED=1
+    # Keep the container running
+    restart: unless-stopped 
