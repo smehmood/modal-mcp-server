@@ -15,6 +15,7 @@ mcp = FastMCP("modal-deploy")
 def run_modal_command(command: list[str], uv_directory: str = None) -> dict[str, Any]:
     """Run a Modal CLI command and return the result"""
     try:
+        # uv_directory is necessary for modal deploy, since deploying the app requires the app to use the uv venv
         command = (["uv", "run", f"--directory={uv_directory}"] if uv_directory else []) + command
         logger.info(f"Running command: {' '.join(command)}")
         result = subprocess.run(
