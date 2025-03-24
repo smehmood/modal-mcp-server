@@ -194,5 +194,81 @@ async def remove_modal_volume_file(volume_name: str, remote_path: str, recursive
         logger.error(f"Failed to delete from Modal volume: {e}")
         raise
 
+@mcp.tool()
+async def put_modal_volume_file(volume_name: str, local_path: str, remote_path: str = "/", force: bool = False) -> dict[str, Any]:
+    """
+    Upload a file or directory to a Modal volume.
+
+    Args:
+        volume_name: Name of the Modal volume to upload to.
+        local_path: Path to the local file or directory to upload.
+        remote_path: Path in the volume to upload to. Defaults to root ("/").
+                    If ending with "/", it's treated as a directory and the file keeps its name.
+        force: If True, overwrite existing files. Defaults to False.
+
+    Returns:
+        A dictionary containing the result of the upload operation.
+
+    Raises:
+        Exception: If the upload operation fails for any reason.
+    """
+    try:
+        command = ["modal", "volume", "put"]
+        if force:
+            command.append("-f")
+        command.extend([volume_name, local_path, remote_path])
+        
+        result = run_modal_command(command)
+        if not result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to upload {local_path}: {result.get('error', 'Unknown error')}"
+            }
+        return {
+            "success": True,
+            "message": f"Successfully uploaded {local_path} to {volume_name}:{remote_path}"
+        }
+    except Exception as e:
+        logger.error(f"Failed to upload to Modal volume: {e}")
+        raise
+
+@mcp.tool()
+async def get_modal_volume_file(volume_name: str, remote_path: str, local_destination: str = ".", force: bool = False) -> dict[str, Any]:
+    """
+    Download files from a Modal volume.
+
+    Args:
+        volume_name: Name of the Modal volume to download from.
+        remote_path: Path to the file or directory in the volume to download.
+        local_destination: Local path to save the downloaded file(s). Defaults to current directory.
+                         Use "-" to write file contents to stdout.
+        force: If True, overwrite existing files. Defaults to False.
+
+    Returns:
+        A dictionary containing the result of the download operation.
+
+    Raises:
+        Exception: If the download operation fails for any reason.
+    """
+    try:
+        command = ["modal", "volume", "get"]
+        if force:
+            command.append("--force")
+        command.extend([volume_name, remote_path, local_destination])
+        
+        result = run_modal_command(command)
+        if not result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to download {remote_path}: {result.get('error', 'Unknown error')}"
+            }
+        return {
+            "success": True,
+            "message": f"Successfully downloaded {remote_path} from {volume_name} to {local_destination}"
+        }
+    except Exception as e:
+        logger.error(f"Failed to download from Modal volume: {e}")
+        raise
+
 if __name__ == "__main__":
     mcp.run()
