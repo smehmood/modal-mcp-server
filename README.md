@@ -73,6 +73,23 @@ Replace `/path/to/modal-mcp-server` with the absolute path to your cloned reposi
      - `remote_path`: Path to file/directory to delete
      - `recursive`: Boolean flag for recursive deletion (default: false)
 
+5. **Upload Files** (`put_modal_volume_file`)
+   - Uploads a file or directory to a Modal volume
+   - Parameters:
+     - `volume_name`: Name of the Modal volume
+     - `local_path`: Path to local file/directory to upload
+     - `remote_path`: Path in volume to upload to (default: "/")
+     - `force`: Boolean flag to overwrite existing files (default: false)
+
+6. **Download Files** (`get_modal_volume_file`)
+   - Downloads files from a Modal volume
+   - Parameters:
+     - `volume_name`: Name of the Modal volume
+     - `remote_path`: Path to file/directory in volume to download
+     - `local_destination`: Local path to save downloaded files (default: current directory)
+     - `force`: Boolean flag to overwrite existing files (default: false)
+   - Note: Use "-" as `local_destination` to write file contents to stdout
+
 ### Modal Deployment
 
 1. **Deploy Modal App** (`deploy_modal_app`)
@@ -101,6 +118,7 @@ All tools return responses in a standardized format:
     "error": "Error message describing what went wrong"
 }
 ```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
