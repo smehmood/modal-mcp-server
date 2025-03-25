@@ -102,23 +102,38 @@ Replace `/path/to/modal-mcp-server` with the absolute path to your cloned reposi
 
 ## Response Format
 
-All tools return responses in a standardized format:
+All tools return responses in a standardized format, with slight variations depending on the operation type:
 
 ```python
-# Success case:
+# JSON operations (list volumes, list contents):
 {
     "success": True,
-    "message": "Operation successful message",  # For non-JSON operations
-    "data": {...}  # For JSON operations (volumes/contents)
+    "data": {...}  # JSON data from Modal CLI
 }
 
-# Error case:
+# File operations (put, get, copy, remove):
+{
+    "success": True,
+    "message": "Operation successful message",
+    "command": "executed command string",
+    "stdout": "command output",  # if any
+    "stderr": "error output"     # if any
+}
+
+# Error case (all operations):
 {
     "success": False,
-    "error": "Error message describing what went wrong"
+    "error": "Error message describing what went wrong",
+    "command": "executed command string",  # for file operations
+    "stdout": "command output",  # if available
+    "stderr": "error output"     # if available
 }
 ```
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
