@@ -27,14 +27,16 @@ def run_modal_command(command: list[str], uv_directory: str = None) -> dict[str,
         return {
             "success": True,
             "stdout": result.stdout,
-            "stderr": result.stderr
+            "stderr": result.stderr,
+            "command": ' '.join(command)
         }
     except subprocess.CalledProcessError as e:
         return {
             "success": False,
             "error": str(e),
             "stdout": e.stdout,
-            "stderr": e.stderr
+            "stderr": e.stderr,
+            "command": ' '.join(command)
         }
 
 def handle_json_response(result: Dict[str, Any], error_prefix: str) -> Dict[str, Any]:
@@ -49,13 +51,23 @@ def handle_json_response(result: Dict[str, Any], error_prefix: str) -> Dict[str,
         A dictionary with standardized success/error format
     """
     if not result["success"]:
-        return {"success": False, "error": f"{error_prefix}: {result.get('error', 'Unknown error')}"}
+        response = {"success": False, "error": f"{error_prefix}: {result.get('error', 'Unknown error')}"}
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+        return response
     
     try:
         data = json.loads(result["stdout"])
         return {"success": True, "data": data}
     except json.JSONDecodeError as e:
-        return {"success": False, "error": f"Failed to parse JSON output: {str(e)}"}
+        response = {"success": False, "error": f"Failed to parse JSON output: {str(e)}"}
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+        return response
 
 @mcp.tool()
 async def deploy_modal_app(absolute_path_to_app: str) -> dict[str, Any]:
@@ -145,15 +157,22 @@ async def copy_modal_volume_files(volume_name: str, paths: List[str]) -> dict[st
 
     try:
         result = run_modal_command(["modal", "volume", "cp", volume_name] + paths)
-        if not result["success"]:
-            return {
-                "success": False,
-                "error": f"Failed to copy files: {result.get('error', 'Unknown error')}"
-            }
-        return {
-            "success": True,
-            "message": f"Successfully copied files in volume {volume_name}"
+        response = {
+            "success": result["success"],
+            "command": result["command"]
         }
+        
+        if not result["success"]:
+            response["error"] = f"Failed to copy files: {result.get('error', 'Unknown error')}"
+        else:
+            response["message"] = f"Successfully copied files in volume {volume_name}"
+            
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+            
+        return response
     except Exception as e:
         logger.error(f"Failed to copy files in Modal volume: {e}")
         raise
@@ -181,15 +200,22 @@ async def remove_modal_volume_file(volume_name: str, remote_path: str, recursive
         command.extend([volume_name, remote_path])
         
         result = run_modal_command(command)
-        if not result["success"]:
-            return {
-                "success": False,
-                "error": f"Failed to delete {remote_path}: {result.get('error', 'Unknown error')}"
-            }
-        return {
-            "success": True,
-            "message": f"Successfully deleted {remote_path} from volume {volume_name}"
+        response = {
+            "success": result["success"],
+            "command": result["command"]
         }
+        
+        if not result["success"]:
+            response["error"] = f"Failed to delete {remote_path}: {result.get('error', 'Unknown error')}"
+        else:
+            response["message"] = f"Successfully deleted {remote_path} from volume {volume_name}"
+            
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+            
+        return response
     except Exception as e:
         logger.error(f"Failed to delete from Modal volume: {e}")
         raise
@@ -219,15 +245,22 @@ async def put_modal_volume_file(volume_name: str, local_path: str, remote_path: 
         command.extend([volume_name, local_path, remote_path])
         
         result = run_modal_command(command)
-        if not result["success"]:
-            return {
-                "success": False,
-                "error": f"Failed to upload {local_path}: {result.get('error', 'Unknown error')}"
-            }
-        return {
-            "success": True,
-            "message": f"Successfully uploaded {local_path} to {volume_name}:{remote_path}"
+        response = {
+            "success": result["success"],
+            "command": result["command"]
         }
+        
+        if not result["success"]:
+            response["error"] = f"Failed to upload {local_path}: {result.get('error', 'Unknown error')}"
+        else:
+            response["message"] = f"Successfully uploaded {local_path} to {volume_name}:{remote_path}"
+            
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+            
+        return response
     except Exception as e:
         logger.error(f"Failed to upload to Modal volume: {e}")
         raise
@@ -257,15 +290,22 @@ async def get_modal_volume_file(volume_name: str, remote_path: str, local_destin
         command.extend([volume_name, remote_path, local_destination])
         
         result = run_modal_command(command)
-        if not result["success"]:
-            return {
-                "success": False,
-                "error": f"Failed to download {remote_path}: {result.get('error', 'Unknown error')}"
-            }
-        return {
-            "success": True,
-            "message": f"Successfully downloaded {remote_path} from {volume_name} to {local_destination}"
+        response = {
+            "success": result["success"],
+            "command": result["command"]
         }
+        
+        if not result["success"]:
+            response["error"] = f"Failed to download {remote_path}: {result.get('error', 'Unknown error')}"
+        else:
+            response["message"] = f"Successfully downloaded {remote_path} from volume {volume_name}"
+            
+        if result.get("stdout"):
+            response["stdout"] = result["stdout"]
+        if result.get("stderr"):
+            response["stderr"] = result["stderr"]
+            
+        return response
     except Exception as e:
         logger.error(f"Failed to download from Modal volume: {e}")
         raise
